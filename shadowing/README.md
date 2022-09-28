@@ -1,0 +1,2 @@
+# Shadowing
+Variables in Rust are immutable by default. However you can re-declare them by using the `let` keyword again with the same variable name. This means the new variable "shadows" the first meaning it creates a copy of its value and that value will be used inside its declared scope. Outside the scope, the value statys the same.
