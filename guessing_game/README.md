@@ -1,0 +1,2 @@
+# Guessing Game
+A short command line game where the user is asked to inout a number and it is compared against a randomly generated number. If the guess and random number match, the user wins and the gane ends. If they get it wrong, they get a clue and another guess.
