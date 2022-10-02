@@ -1,0 +1,2 @@
+# Structs
+Structs or structures are data types that the developer can declare. These structs contain named fields (key:value pairs) that can be referenced once the struct is instantiated as a variable. 
