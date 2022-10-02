@@ -1,0 +1,2 @@
+# Slices
+Much like in other languages Rust can get access to a substring inside a string through slicing. That is you specify a range of characters (e.g. all characters between the 4th and 10th charcter of a 12 character string) and get those characters returned to you. In regards to ownership these slices are references so they can used without accidentally dropping the original string variable.
