@@ -7,6 +7,10 @@ struct User {
     sign_in_count: i32
 }
 
+// tuples can also be defined as structs. They behave the 
+// same except that they don't have fields.
+struct Color(i32, i32, i32);
+
 fn main() {
     // a struct can then be used to create a variable
     // adding the mut flag makes the fields editable
@@ -57,6 +61,15 @@ fn main() {
         user3.username, 
         user3.active,
         user3.sign_in_count
+    );
+
+    // define a tuple struct like this
+    let black = Color(0, 0, 0);
+    println!(
+        "The colour black is defined as: ({},{},{})", 
+        black.0, 
+        black.1, 
+        black.2
     );
 }
 
