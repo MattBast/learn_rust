@@ -1,5 +1,8 @@
 // standard structs are declared at the start of the program
-// and contain definitions of the stricts fields
+// and contain definitions of the stricts fields. Adding the 
+// derive debug decorator allows the user to print the whole
+// strunct in print statements.
+#[derive(Debug)]
 struct User {
     active: bool,
     username: String,
@@ -62,6 +65,10 @@ fn main() {
         user3.active,
         user3.sign_in_count
     );
+
+    // use {:?} or {:#?} to print the entirety of a struct
+    println!("User 1: {:?}", user1);
+    println!("User 2: {:#?}", user2);
 
     // define a tuple struct like this
     let black = Color(0, 0, 0);
