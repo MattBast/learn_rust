@@ -1,0 +1,2 @@
+# Vectors
+A vector is like a list in Python or an array in Javascript. They store lists of values and put all those values together in memory. The values in the list need to be of the same type. You cannot mix data types in a vector though there is a work around with enums.
