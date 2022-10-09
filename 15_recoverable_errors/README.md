@@ -1,0 +1,2 @@
+# Recoverable errors
+Most of the time we do not want a Rust programme to panic when an error is thrown. We want to handle it with an exception or propagate it to be handled by the calling function. Error handling is broadly handled through the `Result<T, E>` enum which is something a function can return. The `T` variant represent the data type of the desired result if the function succeeded. The `E` meanwhile represents an error type variable that can be used for error handling.
