@@ -1,4 +1,6 @@
 # Traits
-It is sometimes useful to state that one type shares behviour with another. For instance integers and floats share much of the same behaviour in that they are numbers that can have mathematical operations performed on them. As such it is not uncommon for these types to be used interchangebly in a function. We can define similar shared behaviours as traits in our generic types and structs.
+It is sometimes useful to state that one type shares behviour with another. For instance integers and floats share much of the same behaviour in that they are numbers that can have mathematical operations performed on them. As such it is not uncommon for these types to be used interchangebly in a function. We can define similar shared behaviours as traits in our generic types and structs. This is handy as Rust can check at compile time that parameters passed to function contain the right behaviour forcing us to correct bugs before the code can be built. A dynamically typed language on the other hand would throw the error at runtime potentially causing the programme to crash. 
 
 Note that these traits tend to be defined in the `lib.rs` file. Rust programmes are limited to just one of these files.
+
+It's also worth noting that traits can only be applied to custom types. They cannot be applied to anything in the Rust standard library. This protects the core code of Rust from potential breaking changes.
