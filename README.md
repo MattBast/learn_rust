@@ -6,6 +6,11 @@ A directory where I'm following this introduction to Rust guide: https://doc.rus
 cargo new <directory_name>
 ```
 
+or create a library create with the `--lib` flag:
+```bash
+cargo new <directory_name> --lib
+```
+
 2. Build a test/debug version of the Rust code in the `src` directory.
 ```bash
 cargo build
@@ -35,5 +40,15 @@ cargo run
 ```bash
 cargo check
 ````
+
+8. Run any tests that may have been written
+```bash
+cargo test
+```
+
+include the name of a single test if you only want to run one test. The word is treated like a prefix filter so it will also run any tests that start with the `<test_name>`.
+```bash
+cargo test <test_name>
+```
 
 
