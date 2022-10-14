@@ -37,6 +37,13 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     // adding the ? suffix adds a shortcut to propagate any errors up to the 
     // calling function
     let contents = fs::read_to_string(config.file_path)?;
+
+    // use the search function to find lines that contain the users query.
+    // loop through each one and print them to the console.
+    for line in search(&config.query, &contents) {
+    	println!("{line}");
+    }
+
     return Ok(());
 }
 
