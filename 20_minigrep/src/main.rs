@@ -1,7 +1,7 @@
 use std::env;
 use std::fs;
 use std::process;
-
+use std::error::Error;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -9,7 +9,7 @@ fn main() {
     // unwrap extracts a Config struct from the return if the function processed
     // correctly. If it returns an error the else function will run.
     let config = Config::build(&args).unwrap_or_else(|err| {
-        // when an error is returned print a message
+        // when an error is returned print it to the command line with a preface
         println!("Problem parsing arguments: {err}");
         // and then stop the program without a panic and return the number 1
         // as the exit code
@@ -19,9 +19,13 @@ fn main() {
     println!("Searching for {}", config.query);
     println!("In file {}", config.file_path);
 
-    let contents = fs::read_to_string(config.file_path)
-         .expect("Should have been able to read the file");
-     println!("With text:\n{contents}");
+    // run returns either an error or nothing at all. In these cases we can use
+    // the if let pattern to unwrap the error if we get one. Otherwise it will
+    // just happily ignore the return value.
+    if let Err(e) = run(config) {
+        println!("Application error: {e}");
+        process::exit(1);
+    }
 }
 
 // the query substring anf the filepath will always be used together
@@ -50,4 +54,17 @@ impl Config {
         // returning an Ok value fits the happy path return into the Result enum
         return Ok(Config { query, file_path });
     }
+}
+
+// the run function reads a file and prints its contents. It will either return an
+// empty tuple (the equivalent of a null return in Rust) or an error of something 
+// goes wrong. Using the Box trait gives us flexibility on what type of error we 
+// return
+fn run(config: Config) -> Result<(), Box<dyn Error>> {
+    // adding the ? suffix adds a shortcut to propagate any errors up to the 
+    // calling function
+    let contents = fs::read_to_string(config.file_path)?;
+    println!("With text:\n{contents}");
+
+    return Ok(());
 }
