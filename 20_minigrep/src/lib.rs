@@ -26,12 +26,22 @@ impl Config {
         let query = args[1].clone();
         let file_path = args[2].clone();
 
-        // use the environment variable "IGNORE_CASE" to decide where to
-        // use case sensitiv searching or not. The is_ok() function returns
-        // a boolean telling us if the environment variable is set or not.
-        // If we wanted to know the value the variable was set to we could 
-        // have used unwrap() or expect() instead.
-        let ignore_case = env::var("IGNORE_CASE").is_ok();
+        // default search not ignore case sensitivity when searching
+        let mut ignore_case = false;
+
+        // if a third environent variable is passed, ignore case sensitivity
+        if args.len() > 3 {
+        	ignore_case = true;
+        } 
+
+        if env::var("IGNORE_CASE").is_ok() {
+        	// use the environment variable "IGNORE_CASE" to decide where to
+	        // use case sensitive searching or not. The is_ok() function returns
+	        // a boolean telling us if the environment variable is set or not.
+	        // If we wanted to know the value the variable was set to we could 
+	        // have used unwrap() or expect() instead.
+        	ignore_case = true;
+        } 
         
         // returning an Ok value fits the happy path return into the Result enum
         return Ok(Config { query, file_path, ignore_case });
