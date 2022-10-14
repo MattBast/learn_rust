@@ -17,9 +17,6 @@ fn main() {
         process::exit(1);
     });
 
-    println!("Searching for {}", config.query);
-    println!("In file {}", config.file_path);
-
     // run returns either an error or nothing at all. In these cases we can use
     // the if let pattern to unwrap the error if we get one. Otherwise it will
     // just happily ignore the return value.
