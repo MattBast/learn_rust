@@ -1,3 +1,4 @@
+use std::env;
 use std::fs;
 use std::error::Error;
 
@@ -7,6 +8,7 @@ use std::error::Error;
 pub struct Config {
     pub query: String,
     pub file_path: String,
+    pub ignore_case: bool,
 }
 
 
@@ -23,9 +25,16 @@ impl Config {
 
         let query = args[1].clone();
         let file_path = args[2].clone();
+
+        // use the environment variable "IGNORE_CASE" to decide where to
+        // use case sensitiv searching or not. The is_ok() function returns
+        // a boolean telling us if the environment variable is set or not.
+        // If we wanted to know the value the variable was set to we could 
+        // have used unwrap() or expect() instead.
+        let ignore_case = env::var("IGNORE_CASE").is_ok();
         
         // returning an Ok value fits the happy path return into the Result enum
-        return Ok(Config { query, file_path });
+        return Ok(Config { query, file_path, ignore_case });
     }
 }
 
@@ -38,9 +47,16 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     // calling function
     let contents = fs::read_to_string(config.file_path)?;
 
-    // use the search function to find lines that contain the users query.
-    // loop through each one and print them to the console.
-    for line in search(&config.query, &contents) {
+    // use the Config to decide if we will search using case sensitivity or
+    // not. Return the search results into a variable.
+    let results = if config.ignore_case {
+    	search_case_insensitive(&config.query, &contents)
+    } else {
+    	search(&config.query, &contents)
+    };
+
+    // loop through each searc result and print it to the console.
+    for line in results {
     	println!("{line}");
     }
 
@@ -61,22 +77,55 @@ pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
 	return results;
 }
 
+pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+	// the function of this function is the same as the search function except that
+	// we lowercase the query and each line of contents before searching it
+	let query = query.to_lowercase();
+	let mut results = Vec::new();
+
+	for line in contents.lines() {
+		if line.to_lowercase().contains(&query) {
+			results.push(line);
+		}
+	}
+
+	return results;
+}
+
  #[cfg(test)]
  mod tests {
 	use super::*;
 	
 	// test that the search function can extract one result
-	// from a test string
+	// from a test string. Do this in a case sensitive way.
 	#[test]
-	fn one_result() {
+	fn case_sensitive() {
 		let query = "duct";
+		// the backslash tells Rust to ignore the newline character on the 
+		// first line of this multi-line string
 		let contents = "\
 Rust:
 safe, fast, productive.
-Pick three.";
+Pick three.
+Duct tape.";
 		assert_eq!(
 			vec!["safe, fast, productive."], 
 		 	search(query, contents)
 		);
 	} 
+
+	// and test case insensitive searching
+	#[test]
+	fn case_insensitive() {
+		let query = "rUsT";
+		let contents = "\
+Rust:
+safe, fast, productive.
+Pick three.
+Trust me.";
+		assert_eq!(
+			vec!["Rust:", "Trust me."],
+			search_case_insensitive(query, contents)
+		);
+	}
 }
