@@ -2,9 +2,6 @@ use std::env;
 use std::fs;
 use std::error::Error;
 
-// the query substring and the filepath will always be used together
-// so it makes sense that they exist within the same struct. This also
-// makes it easier to modularise this setup functionality.
 pub struct Config {
     pub query: String,
     pub file_path: String,
@@ -57,19 +54,14 @@ impl Config {
 // goes wrong. Using the Box trait gives us flexibility on what type of error we 
 // return
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    // adding the ? suffix adds a shortcut to propagate any errors up to the 
-    // calling function
     let contents = fs::read_to_string(config.file_path)?;
 
-    // use the Config to decide if we will search using case sensitivity or
-    // not. Return the search results into a variable.
     let results = if config.ignore_case {
     	search_case_insensitive(&config.query, &contents)
     } else {
     	search(&config.query, &contents)
     };
 
-    // loop through each searc result and print it to the console.
     for line in results {
     	println!("{line}");
     }
@@ -78,45 +70,35 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 }
 
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-	// an empty list that will contain all the lines from contents that
-	// contain query
-	let mut results = Vec::new();
-
-	for line in contents.lines() {
-		if line.contains(query) {
-			results.push(line);
-		}
-	}
-
-	return results;
+	// swap the for loop for an iterator with a closure. The `lines()`
+	// method generates an iterator where each item is a line of a
+	// multi-line string. `filter()` is used to consume the iterator. 
+	// `filter()` generates an iterator so collect is used to return
+	// a Vector.
+	return contents
+		.lines()
+		.filter(|line| line.contains(query))
+		.collect();
 }
 
 pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-	// the function of this function is the same as the search function except that
-	// we lowercase the query and each line of contents before searching it
 	let query = query.to_lowercase();
-	let mut results = Vec::new();
 
-	for line in contents.lines() {
-		if line.to_lowercase().contains(&query) {
-			results.push(line);
-		}
-	}
-
-	return results;
+	// do the same with the case insensitive search adding `to_lowercase()` to
+	// the closure.
+	return contents
+		.lines()
+		.filter(|line| line.to_lowercase().contains(&query))
+		.collect();
 }
 
  #[cfg(test)]
  mod tests {
 	use super::*;
 	
-	// test that the search function can extract one result
-	// from a test string. Do this in a case sensitive way.
 	#[test]
 	fn case_sensitive() {
 		let query = "duct";
-		// the backslash tells Rust to ignore the newline character on the 
-		// first line of this multi-line string
 		let contents = "\
 Rust:
 safe, fast, productive.
@@ -128,7 +110,6 @@ Duct tape.";
 		);
 	} 
 
-	// and test case insensitive searching
 	#[test]
 	fn case_insensitive() {
 		let query = "rUsT";
