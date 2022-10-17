@@ -51,4 +51,8 @@ include the name of a single test if you only want to run one test. The word is 
 cargo test <test_name>
 ```
 
+9. Build and open a librarys documentation:
+```bash
+cargo doc --open
+```
 
