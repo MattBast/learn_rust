@@ -1,0 +1,5 @@
+# Object Orientated Programming
+Rust was not designed to be an OOP (object orientated programming) language but by some definitions it is one. Where most OOP languages use `Objects` and `Inheritance`, Rust uses `Structs` and `Traits`. While not totally the same this does mean that Rust can use some OOP design patterns.
+
+## The state pattern
+The state pattern is one such OOP method. The basic principle is that each object (struct) contains some sort of state or status. This state is managed internally by the object. The state value itself doesn't know how to transition to another state but methods within the object do know how and are responsible for ding so. This makes it easy to update the logic for state transition without changing the interface that other objects use to read the objects state. Ultimately this makes a large codebase more maintainable and extensible.
