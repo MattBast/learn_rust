@@ -37,6 +37,9 @@ fn main() {
     // thread here's an example where a spawned thread sends mutliple messages.
     let (tx, rx) = mpsc::channel();
 
+    // to produce messages from multiple transmitters, clone the transmitter
+    let tx_cloned = tx.clone();
+
     thread::spawn(move || {
         let vals = vec![
             String::from("hello"),
@@ -48,6 +51,19 @@ fn main() {
 
         for val in vals {
             tx.send(val).unwrap();
+            thread::sleep(Duration::from_secs(1));
+        }
+    });
+
+    thread::spawn(move || {
+        let vals = vec![
+            String::from("some"),
+            String::from("more"),
+            String::from("messages"),
+        ];
+
+        for val in vals {
+            tx_cloned.send(val).unwrap();
             thread::sleep(Duration::from_secs(1));
         }
     });
