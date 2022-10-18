@@ -1,0 +1,2 @@
+# Concurrency: message passing
+By their nature threads are independent and therefore unable to communicate with one another. One increasingly popular solution to this challenge is use channels to pass messages between threads. Rusts standard library contains "channels" for this purpose. Channels enable one thread produce messages to the channel and another receives them.
