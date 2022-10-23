@@ -10,7 +10,7 @@ pub struct ThreadPool {
 	workers: Vec<Worker>,
 	/// sender is the producer part of a channel used to send closures
 	/// to a thread/worker that then executes the closure
-	sender: mpsc::Sender<Job>,
+	sender: Option<mpsc::Sender<Job>>,
 }
 
 impl ThreadPool {
@@ -44,7 +44,7 @@ impl ThreadPool {
 			workers.push(Worker::new(id, Arc::clone(&receiver)));
 		}
 
-		return ThreadPool { workers, sender };
+		return ThreadPool { workers, sender: Some(sender) };
 	}
 
 	/// Use a thread in the thread pool to run a closure.	
@@ -59,7 +59,27 @@ impl ThreadPool {
 		let job = Box::new(f);
 
 		// use the pools channel to send the job to a worker
-		self.sender.send(job).unwrap();
+		self.sender.as_ref().unwrap().send(job).unwrap();
+	}
+}
+
+/// The Drop trait for ThreadPool allows all workers to finsih processing their
+/// current job before shutting them all down.
+impl Drop for ThreadPool {
+	fn drop(&mut self) {
+		// shut down down the sender so no new jobs are sent to the workers
+		drop(self.sender.take());
+
+		// shut down the workers as they finish their jobs
+		for worker in &mut self.workers {
+			println!("Shutting down worker {}", worker.id);
+			
+			// take ownership of the threads handle
+			if let Some(thread) = worker.thread.take() {
+				// then call the join method to shut down the thread
+				thread.join().unwrap();
+			}
+		}
 	}
 }
 
@@ -67,26 +87,33 @@ impl ThreadPool {
 // by the pool.
 struct  Worker {
 	id: usize,
-	thread: thread::JoinHandle<()>,
+	thread: Option<thread::JoinHandle<()>>,
 }
 
 impl Worker {
 	/// creates a worker with a unique id and a thread with an empty closure
 	pub fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
+		// start a loop within a new thread waiting for a job to come down
+		// the message passing channel.
 		let thread = thread::spawn(move || loop {
-			// wait to receive a job
-			let job = receiver
-				.lock()
-				.expect("cannot lock the mutex holding the job to execute. Shutting down server.")
-				.recv()
-				.expect("was not able to receive a job from the channel");
+			let message = receiver.lock().unwrap().recv();
 
-			println!("Worker {id} received a job. Currently executing job.");
-
-			job();
+			// wait to receive a job. Shut down the worker if it discnnects
+			// from the jobs channel
+			match message {
+				Ok(job) => {
+					println!("Worker {id} received a job. Currently executing job.");
+					job();
+				}
+				Err(_) => {
+					println!("Worker {id} disconnected. Shutting it down.");
+					break;
+				}
+			}
+			
 		});
 
-		return Worker { id, thread };
+		return Worker { id, thread: Some(thread) };
 	}
 }
 
